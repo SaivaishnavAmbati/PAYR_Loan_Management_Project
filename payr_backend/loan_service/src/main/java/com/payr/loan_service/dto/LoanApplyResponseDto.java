@@ -1,43 +1,32 @@
-package com.payr.loan_service.model;
+package com.payr.loan_service.dto;
 
-import jakarta.persistence.*;
+
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "loan_applications")
-public class LoanApplication {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class LoanApplyResponseDto {
     private Integer loanId;
-
-    @ManyToOne
-    @JoinColumn(name = "loan_type_id", nullable = false)
-    private LoanType loanTypes;
-
-//    @ManyToOne
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;  // ✅ add this
-
+    private Integer loanTypeId;
     private BigDecimal requestedAmount;
     private Double interestRate;
     private Integer tenureMonths;
     private Integer emiDueDay;
     private LocalDateTime createdAt;
-
-    @ElementCollection
-    @CollectionTable(name = "loan_application_documents", joinColumns = @JoinColumn(name = "loan_id"))
-    @Column(name = "document_id")
-    private List<Long> documentIds = new ArrayList<>();
+    private List<Long> documentIds; // Return document references
 
     // Getters and Setters
-    public Integer getLoanId() { return loanId; }
-    public void setLoanId(Integer loanId) { this.loanId = loanId; }
-    public LoanType getLoanTypes() { return loanTypes; }
-    public void setLoanTypes(LoanType loanTypes) { this.loanTypes = loanTypes; }
+    public Integer getLoanId() {
+        return loanId;
+    }
+    public void setLoanId(Integer loanId) {
+        this.loanId = loanId;
+    }
+    public Integer getLoanTypeId() {
+        return loanTypeId;
+    }
+    public void setLoanTypeId(Integer loanTypeId) { this.loanTypeId = loanTypeId; }
     public BigDecimal getRequestedAmount() { return requestedAmount; }
     public void setRequestedAmount(BigDecimal requestedAmount) { this.requestedAmount = requestedAmount; }
     public Double getInterestRate() { return interestRate; }
@@ -51,4 +40,3 @@ public class LoanApplication {
     public List<Long> getDocumentIds() { return documentIds; }
     public void setDocumentIds(List<Long> documentIds) { this.documentIds = documentIds; }
 }
-
