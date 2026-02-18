@@ -1,33 +1,35 @@
 package com.payr.document_service.controller;
 
-import com.example.documentService.service.S3Service;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.payr.document_service.dto.DocumentResponseDTO;
+import com.payr.document_service.service.DocumentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-
 @RestController
+@RequestMapping("/documents")
+@RequiredArgsConstructor
 public class DocumentController {
 
-   @Autowired
-    private DocumentService documentService;
+    private final DocumentService documentService;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestParam("file")MultipartFile file) throws IOException{
-        documentService.uploadFile(file);
-        return ResponseEntity.ok("File Uploaded successfully");
+    public ResponseEntity<DocumentResponseDTO> upload(
+            @RequestParam Long userId,
+            @RequestParam MultipartFile file) {
+
+        return ResponseEntity.ok(documentService.uploadFile(userId, file));
     }
 
-    @GetMapping("/download/{filename}")
-    public ResponseEntity<byte[]> download(@PathVariable String filename){
-        byte[] data = documentService.downloadFile(filename);
+    @GetMapping("/download/{documentId}")
+    public ResponseEntity<byte[]> download(@PathVariable Long documentId) {
+
+        byte[] data = documentService.downloadFile(documentId);
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment")
                 .body(data);
     }
-  
-  
 }

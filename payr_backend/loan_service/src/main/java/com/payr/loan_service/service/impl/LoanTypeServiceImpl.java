@@ -101,8 +101,16 @@ public class LoanTypeServiceImpl implements LoanTypeService {
             throw new IllegalArgumentException("Interest rate must be greater than 0");
         }
 
-        if (request.getTenureMonths() == null || request.getTenureMonths() <= 0) {
-            throw new IllegalArgumentException("Tenure must be greater than 0 months");
+        if (request.getMinTenureMonths() == null || request.getMinTenureMonths() <= 0) {
+            throw new IllegalArgumentException("Minimum tenure must be greater than 0 months");
+        }
+
+        if (request.getMaxTenureMonths() == null || request.getMaxTenureMonths() <= 0) {
+            throw new IllegalArgumentException("Maximum tenure must be greater than 0 months");
+        }
+
+        if (request.getMinTenureMonths() > request.getMaxTenureMonths()) {
+            throw new IllegalArgumentException("Minimum tenure cannot be greater than maximum tenure");
         }
 
         if (request.getMinAmount() == null || request.getMinAmount().compareTo(BigDecimal.ZERO) <= 0) {

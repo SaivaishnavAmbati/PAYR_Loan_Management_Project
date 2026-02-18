@@ -22,11 +22,17 @@ public class LoanApplication {
 //    @JoinColumn(name = "user_id", nullable = false)
 //    private User user;  // ✅ add this
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     private BigDecimal requestedAmount;
     private Double interestRate;
     private Integer tenureMonths;
     private Integer emiDueDay;
     private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LoanStatus status;
 
     @ElementCollection
     @CollectionTable(name = "loan_application_documents", joinColumns = @JoinColumn(name = "loan_id"))
@@ -34,6 +40,15 @@ public class LoanApplication {
     private List<Long> documentIds = new ArrayList<>();
 
     // Getters and Setters
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public Integer getLoanId() { return loanId; }
     public void setLoanId(Integer loanId) { this.loanId = loanId; }
     public LoanType getLoanTypes() { return loanTypes; }
@@ -50,5 +65,13 @@ public class LoanApplication {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public List<Long> getDocumentIds() { return documentIds; }
     public void setDocumentIds(List<Long> documentIds) { this.documentIds = documentIds; }
+
+    public LoanStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LoanStatus status) {
+        this.status = status;
+    }
 }
 

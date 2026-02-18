@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.payr</groupId>
 		<artifactId>payr_backend</artifactId>
-		<version>0.0.1-SNAPSHOT</version> <!-- lookup parent from repository -->
+		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>com.payr</groupId>
 	<artifactId>discovery_server</artifactId>
@@ -29,17 +29,23 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webmvc-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-	</dependencies>
+			<!-- Eureka Server -->
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+			</dependency>
+			<!-- Testing -->
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
 
 	<build>
 		<plugins>

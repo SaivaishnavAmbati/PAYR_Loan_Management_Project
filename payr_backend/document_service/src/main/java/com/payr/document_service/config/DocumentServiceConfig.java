@@ -1,4 +1,5 @@
-package com.example.documentService.config;
+package com.payr.document_service.config;
+
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +12,13 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 public class DocumentServiceConfig {
 
-    @Value("${cloud.aws.credentials.access.key}")
+    @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 
     @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.status}")
+    @Value("${cloud.aws.region.static}")
     private String region;
 
 
@@ -31,3 +32,4 @@ public class DocumentServiceConfig {
                 .build();
     }
 }
+
