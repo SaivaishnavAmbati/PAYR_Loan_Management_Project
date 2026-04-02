@@ -14,9 +14,13 @@ public class LoanApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer loanId;
 
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
+
     @ManyToOne
     @JoinColumn(name = "loan_type_id", nullable = false)
     private LoanType loanTypes;
+
 
 //    @ManyToOne
 //    @JoinColumn(name = "user_id", nullable = false)
@@ -72,6 +76,14 @@ public class LoanApplication {
 
     public void setStatus(LoanStatus status) {
         this.status = status;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 }
 

@@ -1,16 +1,16 @@
 package com.payr.loan_service.service.impl;
 
 import com.payr.loan_service.client.DocumentClient;
-import com.payr.loan_service.dto.LoanApplyRequestDto;
-import com.payr.loan_service.dto.LoanApplyResponseDto;
-import com.payr.loan_service.dto.DocumentResponseDTO;
-import com.payr.loan_service.dto.LoanOfficerApplicationResponseDto;
+import com.payr.loan_service.dto.*;
+import com.payr.loan_service.dto.feignDto.NotificationRequestDto;
+import com.payr.loan_service.exception.LoanNotFoundException;
 import com.payr.loan_service.model.LoanApplication;
 import com.payr.loan_service.model.LoanStatus;
 import com.payr.loan_service.model.LoanType;
 import com.payr.loan_service.repository.LoanApplicationRepository;
 import com.payr.loan_service.repository.LoanTypeRepository;
 import com.payr.loan_service.service.LoanApplicationService;
+//import com.payr.loan_service.service.feign.NotificationClient;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,15 +28,14 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     private final LoanTypeRepository loanTypeRepository;
     private final ModelMapper modelMapper;
     private final DocumentClient documentClient;
+//    private final NotificationClient notificationClient;
 
-    public LoanApplicationServiceImpl(LoanApplicationRepository loanApplicationRepository,
-                                      LoanTypeRepository loanTypeRepository,
-                                      ModelMapper modelMapper,
-                                      DocumentClient documentClient) {
+    public LoanApplicationServiceImpl(LoanApplicationRepository loanApplicationRepository, LoanTypeRepository loanTypeRepository, ModelMapper modelMapper, DocumentClient documentClient) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.loanTypeRepository = loanTypeRepository;
         this.modelMapper = modelMapper;
         this.documentClient = documentClient;
+//        this.notificationClient = notificationClient;
     }
 
     @Override
@@ -75,6 +74,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         LoanApplication loanApplication = new LoanApplication();
         loanApplication.setLoanTypes(loanType);
         loanApplication.setUserId(request.getUserId());
+        loanApplication.setUserEmail(request.getEmail());
         loanApplication.setRequestedAmount(request.getRequestedAmount());
         loanApplication.setStatus(LoanStatus.PENDING);
         loanApplication.setTenureMonths(request.getTenureMonths());
@@ -91,6 +91,21 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         response.setMinTenureMonths(saved.getLoanTypes().getMinTenureMonths());
         response.setMaxTenureMonths(saved.getLoanTypes().getMaxTenureMonths());
 
+//        // Build notification request manually
+//        NotificationRequestDto notification = new NotificationRequestDto();
+//        notification.setUserId(request.getUserId());
+//        notification.setEmail(request.getEmail());
+//        notification.setSubject("Loan Application Submitted");
+//        notification.setMessage(
+//                "Dear Customer,\n\nYour loan application has been submitted successfully."
+//        );
+//        notification.setNotificationType("LOAN_APPLIED");
+//
+//        try {
+//            notificationClient.sendNotification(notification);
+//        } catch (Exception e) {
+//            System.out.println("Notification failed: " + e.getMessage());
+//        }
         return response;
     }
 
@@ -143,8 +158,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .toList();
     }
 
-    private LoanOfficerApplicationResponseDto
-    mapToDto(LoanApplication loan) {
+    private LoanOfficerApplicationResponseDto mapToDto(LoanApplication loan) {
 
         LoanOfficerApplicationResponseDto dto =
                 new LoanOfficerApplicationResponseDto();
@@ -160,8 +174,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     }
 
     @Override
-    public List<LoanOfficerApplicationResponseDto>
-    getAllApplications() {
+    public List<LoanOfficerApplicationResponseDto> getAllApplications() {
 
         List<LoanApplication> applications =
                 loanApplicationRepository.findAll();
@@ -171,5 +184,70 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .toList();
     }
 
+    public LoanApprovalResponseDto approveLoan(Integer loanId) {
 
-}
+            LoanApplication loan = loanApplicationRepository.findById(loanId)
+                    .orElseThrow(() -> new LoanNotFoundException("Loan not found"));
+
+            if (loan.getStatus() != LoanStatus.PENDING) {
+                throw new IllegalStateException("Loan already processed");
+            }
+
+            loan.setStatus(LoanStatus.APPROVED);
+            loanApplicationRepository.save(loan);
+
+//        NotificationRequestDto notification = new NotificationRequestDto();
+//        notification.setUserId(loan.getUserId());
+//        notification.setEmail(loan.getUserEmail());
+//        notification.setSubject("Loan Approved");
+//        notification.setMessage(
+//                "Congratulations! Your loan has been approved."
+//        );
+//        notification.setNotificationType("LOAN_APPROVED");
+//
+//        try {
+//            notificationClient.sendNotification(notification);
+//        } catch (Exception e) {
+//            System.out.println("Notification failed: " + e.getMessage());
+//        }
+
+        return new LoanApprovalResponseDto(
+                loan.getLoanId(),
+                LoanStatus.APPROVED,
+                "Loan approved successfully"
+        );
+
+    }
+
+    public LoanApprovalResponseDto rejectLoan(Integer loanId) {
+
+            LoanApplication loan = loanApplicationRepository.findById(loanId)
+                    .orElseThrow(() -> new LoanNotFoundException("Loan not found"));
+
+            if (loan.getStatus() != LoanStatus.PENDING) {
+                throw new IllegalStateException("Loan already processed");
+            }
+
+            loan.setStatus(LoanStatus.REJECTED);
+            loanApplicationRepository.save(loan);
+//        NotificationRequestDto notification = new NotificationRequestDto();
+//        notification.setUserId(loan.getUserId());
+//        notification.setEmail(loan.getUserEmail());
+//        notification.setSubject("Loan Rejected");
+//        notification.setMessage("We regret to inform you that your loan has been rejected.");
+//        notification.setNotificationType("LOAN_REJECTED");
+//
+//        try {
+//            notificationClient.sendNotification(notification);
+//        } catch (Exception e) {
+//            System.out.println("Notification failed: " + e.getMessage());
+//        }
+
+        return new LoanApprovalResponseDto(
+                loan.getLoanId(),
+                LoanStatus.REJECTED,
+                "Loan rejected successfully"
+        );
+    }
+    }
+

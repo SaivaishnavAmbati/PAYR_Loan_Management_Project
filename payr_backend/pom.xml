@@ -26,10 +26,17 @@
 
 	<dependencyManagement>
 		<dependencies>
+				<dependency>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+					<version>1.18.42</version>
+					<scope>provided</scope>
+				</dependency>
+
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2023.0.1</version>
+				<version>2023.0.3</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -38,15 +45,39 @@
 
 
 	<modules>
-		<module>api_gateway</module>
-		<module>auth_service</module>
+		<module>api-gateway</module>
+		<module>auth-service</module>
 		<module>config_server</module>
 		<module>discovery_server</module>
 		<module>document_service</module>
 		<module>loan_service</module>
 		<module>notification_service</module>
-		<module>payr_config_repo</module>
 		<module>user_service</module>
 	</modules>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.11.0</version>
+					<configuration>
+						<source>21</source>
+						<target>21</target>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>1.18.42</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
 
 </project>

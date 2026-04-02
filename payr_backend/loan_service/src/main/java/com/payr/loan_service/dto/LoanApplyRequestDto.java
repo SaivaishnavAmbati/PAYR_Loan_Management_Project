@@ -12,6 +12,7 @@ public class LoanApplyRequestDto {
     private Integer tenureMonths;
     private Integer emiDueDay; // optional
     private List<MultipartFile> files; //
+    private String email;
 
     public Long getUserId() {
         return userId;
@@ -19,6 +20,14 @@ public class LoanApplyRequestDto {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Integer getLoanTypeId() {

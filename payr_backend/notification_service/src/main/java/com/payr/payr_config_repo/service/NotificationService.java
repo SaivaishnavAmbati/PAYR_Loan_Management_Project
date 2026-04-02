@@ -1,4 +1,8 @@
 package com.payr.payr_config_repo.service;
 
-public class NotificationService {
+
+import com.payr.payr_config_repo.dto.NotificationRequest;
+
+public interface NotificationService{
+    public void sendEmail(NotificationRequest request);
 }

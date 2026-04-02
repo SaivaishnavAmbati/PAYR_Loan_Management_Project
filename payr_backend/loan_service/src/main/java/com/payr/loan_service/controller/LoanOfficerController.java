@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/loan-officer")
+@RequestMapping("/api/loanOfficer/applications")
 public class LoanOfficerController {
 
     private final LoanApplicationService loanOfficerService;
@@ -23,17 +23,14 @@ public class LoanOfficerController {
     }
 
     @GetMapping("/applications")
-    public ResponseEntity<List<LoanOfficerApplicationResponseDto>>
-    getApplicationsByStatus(
-            @RequestParam LoanStatus status) {
+    public ResponseEntity<List<LoanOfficerApplicationResponseDto>> getApplicationsByStatus( @RequestParam LoanStatus status) {
 
         return ResponseEntity.ok(
                 loanOfficerService.getApplicationsByStatus(status));
     }
 
     @GetMapping("/applications/all")
-    public ResponseEntity<List<LoanOfficerApplicationResponseDto>>
-    getAllApplications() {
+    public ResponseEntity<List<LoanOfficerApplicationResponseDto>> getAllApplications() {
 
         return ResponseEntity.ok(
                 loanOfficerService.getAllApplications());

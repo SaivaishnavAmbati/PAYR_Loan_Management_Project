@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/payr_backend/api-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payr_backend/api_gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/payr_backend/auth-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payr_backend/auth_service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payr_backend/config_server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/payr_backend/discovery_server/src/main/java" charset="UTF-8" />
