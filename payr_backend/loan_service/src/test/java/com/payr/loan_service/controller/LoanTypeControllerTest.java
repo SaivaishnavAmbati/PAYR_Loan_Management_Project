@@ -1,6 +1,7 @@
 package com.payr.loan_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payr.loan_service.config.JwtUtil;
 import com.payr.loan_service.dto.LoanTypeRequestDto;
 import com.payr.loan_service.dto.LoanTypeResponseDto;
 import com.payr.loan_service.service.LoanTypeService;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = LoanTypeController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(JwtUtil.class)
 class LoanTypeControllerTest {
 
     @Autowired
@@ -41,7 +44,6 @@ class LoanTypeControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Set all required fields to pass validation
         requestDto = new LoanTypeRequestDto();
         requestDto.setName("Personal Loan");
         requestDto.setInterestRate(12.5);
@@ -59,7 +61,7 @@ class LoanTypeControllerTest {
     void createLoanType_Success() throws Exception {
         when(loanTypeService.createLoanType(any(LoanTypeRequestDto.class))).thenReturn(responseDto);
 
-        mockMvc.perform(post("/api/admin/loanTypes/createLoanType")
+        mockMvc.perform(post("/api/loans/loanTypes/admin/createLoanType")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
@@ -73,7 +75,7 @@ class LoanTypeControllerTest {
     void getActiveLoanTypes_Success() throws Exception {
         when(loanTypeService.getAllActiveLoanTypes()).thenReturn(Collections.singletonList(responseDto));
 
-        mockMvc.perform(get("/api/admin/loanTypes/getLoans"))
+        mockMvc.perform(get("/api/loans/loanTypes/getLoans"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Personal Loan"));
@@ -85,7 +87,7 @@ class LoanTypeControllerTest {
     void getLoanTypeById_Success() throws Exception {
         when(loanTypeService.getLoanTypeById(1)).thenReturn(responseDto);
 
-        mockMvc.perform(get("/api/admin/loanTypes/getLoanById/1"))
+        mockMvc.perform(get("/api/loans/loanTypes/getLoanById/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Personal Loan"));

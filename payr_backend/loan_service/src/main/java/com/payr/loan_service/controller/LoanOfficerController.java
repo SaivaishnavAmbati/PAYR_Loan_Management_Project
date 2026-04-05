@@ -1,19 +1,18 @@
 package com.payr.loan_service.controller;
 
+import com.payr.loan_service.config.SecurityUtils;
+import com.payr.loan_service.dto.LoanApplicationValidationResponse;
 import com.payr.loan_service.dto.LoanOfficerApplicationResponseDto;
 import com.payr.loan_service.model.LoanStatus;
 import com.payr.loan_service.service.LoanApplicationService;
-import lombok.RequiredArgsConstructor;
+import com.payr.loan_service.service.impl.LoanApplicationServiceImpl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/loanOfficer/applications")
+@RequestMapping("/api/loans/loanOfficer")
 public class LoanOfficerController {
 
     private final LoanApplicationService loanOfficerService;
@@ -34,6 +33,13 @@ public class LoanOfficerController {
 
         return ResponseEntity.ok(
                 loanOfficerService.getAllApplications());
+    }
+
+    // Validate checkout before placing order
+    @PostMapping("/officercheck/validate")
+    public ResponseEntity<LoanApplicationValidationResponse> validateCheckout() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return ResponseEntity.ok(LoanApplicationServiceImpl.validateCheckout(userId));
     }
 
 }

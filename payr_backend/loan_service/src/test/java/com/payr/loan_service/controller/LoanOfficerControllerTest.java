@@ -1,6 +1,6 @@
 package com.payr.loan_service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payr.loan_service.config.JwtUtil;
 import com.payr.loan_service.dto.LoanOfficerApplicationResponseDto;
 import com.payr.loan_service.model.LoanStatus;
 import com.payr.loan_service.service.LoanApplicationService;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = LoanOfficerController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(JwtUtil.class)
 class LoanOfficerControllerTest {
 
     @Autowired
@@ -42,7 +44,7 @@ class LoanOfficerControllerTest {
     void getApplicationsByStatus_Success() throws Exception {
         when(loanApplicationService.getApplicationsByStatus(LoanStatus.PENDING)).thenReturn(Collections.singletonList(responseDto));
 
-        mockMvc.perform(get("/api/loanOfficer/applications/applications")
+        mockMvc.perform(get("/api/loans/loanOfficer/applications")
                         .param("status", "PENDING"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].loanId").value(1))
@@ -55,7 +57,7 @@ class LoanOfficerControllerTest {
     void getAllApplications_Success() throws Exception {
         when(loanApplicationService.getAllApplications()).thenReturn(Collections.singletonList(responseDto));
 
-        mockMvc.perform(get("/api/loanOfficer/applications/applications/all"))
+        mockMvc.perform(get("/api/loans/loanOfficer/applications/all"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].loanId").value(1));
 

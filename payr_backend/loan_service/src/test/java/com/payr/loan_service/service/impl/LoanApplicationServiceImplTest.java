@@ -1,6 +1,8 @@
 package com.payr.loan_service.service.impl;
 
 import com.payr.loan_service.client.DocumentClient;
+import com.payr.loan_service.client.NotificationClient;
+import com.payr.loan_service.dto.LoanApplicationValidationResponse;
 import com.payr.loan_service.dto.LoanApplyRequestDto;
 import com.payr.loan_service.dto.LoanApplyResponseDto;
 import com.payr.loan_service.dto.LoanOfficerApplicationResponseDto;
@@ -42,6 +44,9 @@ class LoanApplicationServiceImplTest {
 
     @Mock
     private DocumentClient documentClient;
+
+    @Mock
+    private NotificationClient notificationClient;
 
     @InjectMocks
     private LoanApplicationServiceImpl loanApplicationService;
@@ -150,5 +155,17 @@ class LoanApplicationServiceImplTest {
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
+    }
+
+    @Test
+    void validateCheckout_nullUserId_returnsInvalid() {
+        LoanApplicationValidationResponse r = LoanApplicationServiceImpl.validateCheckout(null);
+        assertFalse(r.isValid());
+    }
+
+    @Test
+    void validateCheckout_withUserId_returnsValid() {
+        LoanApplicationValidationResponse r = LoanApplicationServiceImpl.validateCheckout(1L);
+        assertTrue(r.isValid());
     }
 }

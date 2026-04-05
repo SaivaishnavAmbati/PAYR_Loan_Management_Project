@@ -28,39 +28,43 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .authorizeExchange(exchanges -> exchanges
+                        .pathMatchers("/auth/**").permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
+                        .pathMatchers("/swagger-ui.html", "/swagger-ui/**").permitAll()
+                        .pathMatchers("/v3/api-docs/**").permitAll()
+                        .pathMatchers("/auth-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/loan-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/user-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/document-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/notification-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/api/auth-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/api/loan-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/api/user-service/v3/api-docs/**").permitAll()
+                        .pathMatchers("/api/documents/v3/api-docs/**").permitAll()
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .pathMatchers("/webjars/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
 
-                                // allow unauthenticated access for these endpoints
-                                .pathMatchers("/auth/**").permitAll()
-                                .pathMatchers("/actuator/**").permitAll()
-//                                .pathMatchers("/swagger-ui/**").permitAll()
-                                .pathMatchers("/swagger-ui.html", "/swagger-ui/**").permitAll()
-                                .pathMatchers("/v3/api-docs/**").permitAll()      // OpenAPI spec
-                                .pathMatchers("/auth-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/loan-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/user-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/document-service/v3/api-docs/**").permitAll()
+                        // Loan service (aligned with loan-service SecurityConfig)
+                        .pathMatchers(HttpMethod.GET, "/api/loans/loanTypes/getLoans").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/loans/loanTypes/getLoanById/**").permitAll()
+                        .pathMatchers("/api/loans/loanTypes/admin/**").hasRole(Role.ADMIN.name())
+                        .pathMatchers("/api/loans/loanTypes/loan/admin/validate").hasRole(Role.ADMIN.name())
+                        .pathMatchers(HttpMethod.POST, "/api/loans/loanApplication/apply").hasRole(Role.CUSTOMER.name())
+                        .pathMatchers(HttpMethod.POST, "/api/loans/loanApplication/loan/apply/validate")
+                        .hasRole(Role.CUSTOMER.name())
+                        .pathMatchers("/api/loans/loanOfficer/**").hasRole(Role.OFFICER.name())
+                        .pathMatchers("/api/loans/**").authenticated()
 
-//                        -------------
-                                // Add these lines to permit microservice API docs via gateway
-                                .pathMatchers("/api/auth-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/api/loan-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/api/user-service/v3/api-docs/**").permitAll()
-                                .pathMatchers("/api/documents/v3/api-docs/**").permitAll()
-                                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // User service: auth registration callback (not JWT) must bypass admin rule
+                        .pathMatchers(HttpMethod.POST, "/api/users/from-auth").permitAll()
+                        .pathMatchers("/api/users/**").hasRole(Role.ADMIN.name())
 
-                                .pathMatchers("/webjars/**").permitAll()          // static JS/CSS assets
-                                .pathMatchers(HttpMethod.GET, "/favicon.ico").permitAll()
-                                // seller routes
-                                .pathMatchers(HttpMethod.POST, "/api/loanOfficer/applications/**").hasRole(Role.OFFICER.name())
-                                .pathMatchers(HttpMethod.GET, "/api/loanApplication/**").permitAll()
-                                .pathMatchers("/api/loanApplication/**").hasRole(Role.CUSTOMER.name())
-                                .pathMatchers("/api/users/**").hasRole(Role.ADMIN.name())
+                        .pathMatchers("/api/documents/**").authenticated()
+                        .pathMatchers("/notifications/**").authenticated()
 
-                                // everything else needs authentication
-                                .anyExchange().authenticated()
+                        .anyExchange().authenticated()
                 )
-
-                // Add JWT filter before authentication
                 .addFilterAt(jwtWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec

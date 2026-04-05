@@ -13,6 +13,7 @@ public class LoanApplyRequestDto {
     private Integer emiDueDay; // optional
     private List<MultipartFile> files; //
     private String email;
+    private String token;
 
     public Long getUserId() {
         return userId;
@@ -69,5 +70,6 @@ public class LoanApplyRequestDto {
     public void setFiles(List<MultipartFile> files) {
         this.files = files;
     }
+
 }
 

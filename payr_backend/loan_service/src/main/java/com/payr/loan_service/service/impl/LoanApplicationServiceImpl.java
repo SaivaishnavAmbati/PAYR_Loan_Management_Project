@@ -1,8 +1,10 @@
 package com.payr.loan_service.service.impl;
 
 import com.payr.loan_service.client.DocumentClient;
+import com.payr.loan_service.client.NotificationClient;
 import com.payr.loan_service.dto.*;
 import com.payr.loan_service.dto.feignDto.NotificationRequestDto;
+import com.payr.loan_service.exception.DocumentServiceUnavailable;
 import com.payr.loan_service.exception.LoanNotFoundException;
 import com.payr.loan_service.model.LoanApplication;
 import com.payr.loan_service.model.LoanStatus;
@@ -10,17 +12,19 @@ import com.payr.loan_service.model.LoanType;
 import com.payr.loan_service.repository.LoanApplicationRepository;
 import com.payr.loan_service.repository.LoanTypeRepository;
 import com.payr.loan_service.service.LoanApplicationService;
-//import com.payr.loan_service.service.feign.NotificationClient;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class LoanApplicationServiceImpl implements LoanApplicationService {
 
@@ -28,18 +32,25 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
     private final LoanTypeRepository loanTypeRepository;
     private final ModelMapper modelMapper;
     private final DocumentClient documentClient;
-//    private final NotificationClient notificationClient;
+    private final NotificationClient notificationClient;
 
-    public LoanApplicationServiceImpl(LoanApplicationRepository loanApplicationRepository, LoanTypeRepository loanTypeRepository, ModelMapper modelMapper, DocumentClient documentClient) {
+    public LoanApplicationServiceImpl(LoanApplicationRepository loanApplicationRepository,
+                                      LoanTypeRepository loanTypeRepository,
+                                      ModelMapper modelMapper,
+                                      DocumentClient documentClient,
+                                      NotificationClient notificationClient) {
         this.loanApplicationRepository = loanApplicationRepository;
         this.loanTypeRepository = loanTypeRepository;
         this.modelMapper = modelMapper;
         this.documentClient = documentClient;
-//        this.notificationClient = notificationClient;
+        this.notificationClient = notificationClient;
     }
 
     @Override
+    @CircuitBreaker(name = "documentService", fallbackMethod = "documentFallback")
+    @Retry(name = "documentService")
     public LoanApplyResponseDto applyLoan(LoanApplyRequestDto request) {
+        log.info("Starting loan application for userId={}", request.getUserId());
         if (request.getUserId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User ID is required");
         }
@@ -66,10 +77,14 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         List<Long> documentIds = new ArrayList<>();
         if (request.getFiles() != null && !request.getFiles().isEmpty()) {
             for (MultipartFile file : request.getFiles()) {
+                log.info("Uploading documents for userId={}", request.getUserId());
                 DocumentResponseDTO docResponse = documentClient.upload(request.getUserId(), file);
                 documentIds.add(docResponse.getId());
             }
         }
+
+        log.info("Documents uploaded successfully for userId={}, documentIds={}",
+                request.getUserId(), documentIds);
 
         LoanApplication loanApplication = new LoanApplication();
         loanApplication.setLoanTypes(loanType);
@@ -84,6 +99,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         loanApplication.setDocumentIds(documentIds);
 
         LoanApplication saved = loanApplicationRepository.save(loanApplication);
+        log.info("Loan application saved successfully with loanId={}", saved.getLoanId());
 
         LoanApplyResponseDto response = modelMapper.map(saved, LoanApplyResponseDto.class);
         response.setLoanTypeId(saved.getLoanTypes().getId());
@@ -91,22 +107,31 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         response.setMinTenureMonths(saved.getLoanTypes().getMinTenureMonths());
         response.setMaxTenureMonths(saved.getLoanTypes().getMaxTenureMonths());
 
-//        // Build notification request manually
-//        NotificationRequestDto notification = new NotificationRequestDto();
-//        notification.setUserId(request.getUserId());
-//        notification.setEmail(request.getEmail());
-//        notification.setSubject("Loan Application Submitted");
-//        notification.setMessage(
-//                "Dear Customer,\n\nYour loan application has been submitted successfully."
-//        );
-//        notification.setNotificationType("LOAN_APPLIED");
-//
-//        try {
-//            notificationClient.sendNotification(notification);
-//        } catch (Exception e) {
-//            System.out.println("Notification failed: " + e.getMessage());
-//        }
+        NotificationRequestDto notification = new NotificationRequestDto();
+        notification.setUserId(request.getUserId());
+        notification.setEmail(request.getEmail());
+        notification.setSubject("Loan Application Submitted");
+        notification.setMessage(
+                "Dear Customer,\n\nYour loan application has been submitted successfully."
+        );
+        notification.setNotificationType("LOAN_APPLIED");
+
+        try {
+            notificationClient.sendNotification(notification);
+        } catch (Exception e) {
+            log.warn("Notification failed after loan apply: {}", e.getMessage());
+        }
         return response;
+    }
+
+
+    public LoanApplyResponseDto documentFallback(LoanApplyRequestDto request, Throwable ex) {
+
+        log.error("Document Service FAILED for userId={} reason={}",
+                request.getUserId(), ex.getMessage());
+
+        // Throw custom exception → handled by Global Exception Handler
+        throw new DocumentServiceUnavailable("Document service is currently unavailable. Please try again later.");
     }
 
     @Override
@@ -184,6 +209,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 .toList();
     }
 
+    @Override
     public LoanApprovalResponseDto approveLoan(Integer loanId) {
 
             LoanApplication loan = loanApplicationRepository.findById(loanId)
@@ -196,20 +222,20 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
             loan.setStatus(LoanStatus.APPROVED);
             loanApplicationRepository.save(loan);
 
-//        NotificationRequestDto notification = new NotificationRequestDto();
-//        notification.setUserId(loan.getUserId());
-//        notification.setEmail(loan.getUserEmail());
-//        notification.setSubject("Loan Approved");
-//        notification.setMessage(
-//                "Congratulations! Your loan has been approved."
-//        );
-//        notification.setNotificationType("LOAN_APPROVED");
-//
-//        try {
-//            notificationClient.sendNotification(notification);
-//        } catch (Exception e) {
-//            System.out.println("Notification failed: " + e.getMessage());
-//        }
+        NotificationRequestDto notification = new NotificationRequestDto();
+        notification.setUserId(loan.getUserId());
+        notification.setEmail(loan.getUserEmail());
+        notification.setSubject("Loan Approved");
+        notification.setMessage(
+                "Congratulations! Your loan has been approved."
+        );
+        notification.setNotificationType("LOAN_APPROVED");
+
+        try {
+            notificationClient.sendNotification(notification);
+        } catch (Exception e) {
+            log.warn("Notification failed after loan approval: {}", e.getMessage());
+        }
 
         return new LoanApprovalResponseDto(
                 loan.getLoanId(),
@@ -219,6 +245,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
     }
 
+    @Override
     public LoanApprovalResponseDto rejectLoan(Integer loanId) {
 
             LoanApplication loan = loanApplicationRepository.findById(loanId)
@@ -230,18 +257,19 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
             loan.setStatus(LoanStatus.REJECTED);
             loanApplicationRepository.save(loan);
-//        NotificationRequestDto notification = new NotificationRequestDto();
-//        notification.setUserId(loan.getUserId());
-//        notification.setEmail(loan.getUserEmail());
-//        notification.setSubject("Loan Rejected");
-//        notification.setMessage("We regret to inform you that your loan has been rejected.");
-//        notification.setNotificationType("LOAN_REJECTED");
-//
-//        try {
-//            notificationClient.sendNotification(notification);
-//        } catch (Exception e) {
-//            System.out.println("Notification failed: " + e.getMessage());
-//        }
+
+        NotificationRequestDto rejectNotification = new NotificationRequestDto();
+        rejectNotification.setUserId(loan.getUserId());
+        rejectNotification.setEmail(loan.getUserEmail());
+        rejectNotification.setSubject("Loan Rejected");
+        rejectNotification.setMessage("We regret to inform you that your loan has been rejected.");
+        rejectNotification.setNotificationType("LOAN_REJECTED");
+
+        try {
+            notificationClient.sendNotification(rejectNotification);
+        } catch (Exception e) {
+            log.warn("Notification failed after loan rejection: {}", e.getMessage());
+        }
 
         return new LoanApprovalResponseDto(
                 loan.getLoanId(),
@@ -249,5 +277,13 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
                 "Loan rejected successfully"
         );
     }
+
+    /** Used by permission-check endpoints; succeeds when {@code userId} is non-null. */
+    public static LoanApplicationValidationResponse validateCheckout(Long userId) {
+        if (userId == null) {
+            return new LoanApplicationValidationResponse(false, "Invalid user context");
+        }
+        return new LoanApplicationValidationResponse(true, "Permission validated");
     }
+}
 

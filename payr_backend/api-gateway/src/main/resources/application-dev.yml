@@ -1,0 +1,4 @@
+# Used when Config Server is unavailable (optional import).
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-long-secret-change-me-to-a-long-secret}
+  expirationMinutes: ${JWT_EXP_MINUTES:60}

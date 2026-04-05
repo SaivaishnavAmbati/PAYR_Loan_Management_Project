@@ -15,10 +15,12 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
     public ResponseEntity<DocumentResponseDTO> upload(
-            @RequestParam Long userId,
-            @RequestParam MultipartFile file) {
+            @RequestParam("userId") Long userId,
+            @RequestPart("file") MultipartFile file) {
+
+        System.out.println("🔥 Document upload API HIT");
 
         return ResponseEntity.ok(documentService.uploadFile(userId, file));
     }

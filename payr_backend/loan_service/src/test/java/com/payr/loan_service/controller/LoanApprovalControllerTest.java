@@ -1,6 +1,6 @@
 package com.payr.loan_service.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payr.loan_service.config.JwtUtil;
 import com.payr.loan_service.dto.LoanApprovalResponseDto;
 import com.payr.loan_service.model.LoanStatus;
 import com.payr.loan_service.service.LoanApplicationService;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.*;
@@ -19,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = LoanApprovalController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@Import(JwtUtil.class)
 class LoanApprovalControllerTest {
 
     @Autowired
@@ -38,7 +40,7 @@ class LoanApprovalControllerTest {
     void approveLoan_Success() throws Exception {
         when(loanApplicationService.approveLoan(1)).thenReturn(responseDto);
 
-        mockMvc.perform(post("/api/loanOfficer/approve/1"))
+        mockMvc.perform(post("/api/loans/loanOfficer/approve/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.loanId").value(1))
                 .andExpect(jsonPath("$.status").value("APPROVED"));
@@ -51,7 +53,7 @@ class LoanApprovalControllerTest {
         LoanApprovalResponseDto rejectResponse = new LoanApprovalResponseDto(1, LoanStatus.REJECTED, "Rejected");
         when(loanApplicationService.rejectLoan(1)).thenReturn(rejectResponse);
 
-        mockMvc.perform(post("/api/loanOfficer/reject/1"))
+        mockMvc.perform(post("/api/loans/loanOfficer/reject/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.loanId").value(1))
                 .andExpect(jsonPath("$.status").value("REJECTED"));
