@@ -1,0 +1,7 @@
+# Local / dev defaults when not fully overridden by Config Server.
+# Must match auth-service signing secret so JWTs validate here.
+server:
+  port: 8083
+
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-long-secret-change-me-to-a-long-secret}

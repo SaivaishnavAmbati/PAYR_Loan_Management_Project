@@ -1,0 +1,90 @@
+# Used when Config Server is unavailable (optional import).
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-long-secret-change-me-to-a-long-secret}
+  expirationMinutes: ${JWT_EXP_MINUTES:60}
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        # Auth Service
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=2
+
+        # Loan Service
+        - id: loan-service
+          uri: lb://LOAN-SERVICE
+          predicates:
+            - Path=/api/loans/**
+          filters:
+            - StripPrefix=2
+
+        # User Service
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=2
+
+        # Document Service
+        - id: document-service
+          uri: lb://document-service
+          predicates:
+            - Path=/api/documents/**
+          filters:
+            - StripPrefix=2
+
+        # Payment Service
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - StripPrefix=2
+
+        # Notification Service
+        - id: notification-service
+          uri: lb://notification-service
+          predicates:
+            - Path=/notifications/**
+          filters:
+            - StripPrefix=1
+
+      # Global CORS configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+# Eureka Client Configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+# Server Configuration
+server:
+  port: 8080
+
+# Logging Configuration
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG

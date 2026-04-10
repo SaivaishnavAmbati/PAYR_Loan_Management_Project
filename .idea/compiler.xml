@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+      <profile name="Annotation profile for document_service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="document_service" />
+      </profile>
+      <profile name="Annotation profile for payr_backend" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="auth-service" />
+        <module name="user_service" />
+        <module name="payment_service" />
+        <module name="config_server" />
+        <module name="notification_service" />
+        <module name="api-gateway" />
+        <module name="discovery_server" />
+        <module name="loan_service" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="auth_service" target="21" />
+      <module name="PAYR" target="21" />
+      <module name="payr_config_repo" target="21" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="PAYR" options="-parameters" />
+      <module name="api-gateway" options="-parameters" />
+      <module name="auth-service" options="-parameters" />
+      <module name="auth_service" options="-parameters" />
+      <module name="config_server" options="-parameters" />
+      <module name="discovery_server" options="-parameters" />
+      <module name="document_service" options="-parameters" />
+      <module name="loan_service" options="-parameters" />
+      <module name="notification_service" options="-parameters" />
+      <module name="payment_service" options="-parameters" />
+      <module name="payr_config_repo" options="-parameters" />
+      <module name="user_service" options="-parameters" />
+    </option>
+  </component>
+</project>

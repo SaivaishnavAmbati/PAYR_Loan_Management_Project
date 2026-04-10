@@ -1,0 +1,44 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.payr:loan_service >------------------------
+[INFO] Building loan_service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ loan_service ---
+[INFO] Deleting E:\Projects\javaProjects\orginal\PAYR_Loan_Management_Project - Copy\payr_backend\loan_service\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ loan_service ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ loan_service ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 40 source files with javac [debug release 21] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /E:/Projects/javaProjects/orginal/PAYR_Loan_Management_Project - Copy/payr_backend/loan_service/src/main/java/com/payr/loan_service/kafka/PaymentSuccessListener.java:[9,44] package org.springframework.kafka.annotation does not exist
+[ERROR] /E:/Projects/javaProjects/orginal/PAYR_Loan_Management_Project - Copy/payr_backend/loan_service/src/main/java/com/payr/loan_service/kafka/PaymentSuccessListener.java:[24,6] cannot find symbol
+  symbol:   class KafkaListener
+  location: class com.payr.loan_service.kafka.PaymentSuccessListener
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.881 s
+[INFO] Finished at: 2026-04-06T22:15:10+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project loan_service: Compilation failure: Compilation failure: 
+[ERROR] /E:/Projects/javaProjects/orginal/PAYR_Loan_Management_Project - Copy/payr_backend/loan_service/src/main/java/com/payr/loan_service/kafka/PaymentSuccessListener.java:[9,44] package org.springframework.kafka.annotation does not exist
+[ERROR] /E:/Projects/javaProjects/orginal/PAYR_Loan_Management_Project - Copy/payr_backend/loan_service/src/main/java/com/payr/loan_service/kafka/PaymentSuccessListener.java:[24,6] cannot find symbol
+[ERROR]   symbol:   class KafkaListener
+[ERROR]   location: class com.payr.loan_service.kafka.PaymentSuccessListener
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
