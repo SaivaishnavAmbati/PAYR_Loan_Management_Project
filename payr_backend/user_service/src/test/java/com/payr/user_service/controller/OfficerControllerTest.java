@@ -41,6 +41,7 @@ class OfficerControllerTest {
         testOfficer = new Officer();
         testOfficer.setEmployeeId("EMP001");
         testOfficer.setDepartment("Loans");
+        testOfficer.setDesignation("Senior Officer");
         testOfficer.setIsActive(true);
 
         User user = new User();
@@ -50,6 +51,7 @@ class OfficerControllerTest {
         req = new OfficerCreateRequest();
         req.setEmployeeId("EMP001");
         req.setDepartment("Loans");
+        req.setDesignation("Senior Officer");
     }
 
     @Test
@@ -62,7 +64,8 @@ class OfficerControllerTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.employeeId").value("EMP001"))
-                .andExpect(jsonPath("$.department").value("Loans"));
+                .andExpect(jsonPath("$.department").value("Loans"))
+                .andExpect(jsonPath("$.designation").value("Senior Officer"));
 
         verify(officerService, times(1)).createOfficerProfile(eq(1L), any(OfficerCreateRequest.class));
     }
@@ -74,7 +77,8 @@ class OfficerControllerTest {
         mockMvc.perform(get("/api/officers/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.employeeId").value("EMP001"))
-                .andExpect(jsonPath("$.department").value("Loans"));
+                .andExpect(jsonPath("$.department").value("Loans"))
+                .andExpect(jsonPath("$.designation").value("Senior Officer"));
 
         verify(officerService, times(1)).getOfficer(1L);
     }
@@ -89,7 +93,8 @@ class OfficerControllerTest {
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.employeeId").value("EMP001"))
-                .andExpect(jsonPath("$.department").value("Loans"));
+                .andExpect(jsonPath("$.department").value("Loans"))
+                .andExpect(jsonPath("$.designation").value("Senior Officer"));
 
         verify(officerService, times(1)).updateOfficer(eq(1L), any(OfficerCreateRequest.class));
     }

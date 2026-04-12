@@ -27,6 +27,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle MethodArgumentNotValidException (400 Bad Request)
+     * Used when @Valid annotation fails on request bodies.
+     */
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationExceptions(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        StringBuilder errorMessage = new StringBuilder("Validation failed: ");
+        ex.getBindingResult().getFieldErrors().forEach(error -> 
+            errorMessage.append(error.getField()).append(" (").append(error.getDefaultMessage()).append("); ")
+        );
+        
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                errorMessage.toString(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Handle IllegalArgumentException (400 Bad Request)
      * Used for invalid input or validation errors.
      */
@@ -83,6 +102,20 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, status);
+    }
+
+    /**
+     * Handle DataIntegrityViolationException (409 Conflict)
+     * Used typically when unique constraints (like loan name) are violated.
+     */
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                "Database constraint violation. A record with these unique details (e.g., name) may already exist.",
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     /**

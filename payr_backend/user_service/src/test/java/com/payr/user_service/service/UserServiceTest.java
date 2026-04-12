@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -54,6 +57,7 @@ class UserServiceTest {
 
     @Test
     void createUser_ShouldThrowException() {
+        log.info("Testing createUser: Should Throw Exception scenario");
         UserCreateRequest req = new UserCreateRequest();
         req.setEmail("test@example.com");
         
@@ -64,6 +68,7 @@ class UserServiceTest {
         });
         
         assertEquals("Use auth-service registration. Manual /api/users create is disabled.", exception.getMessage());
+        log.info("Finished testing createUser: Should Throw Exception scenario");
     }
 
     @Test
@@ -82,6 +87,7 @@ class UserServiceTest {
 
     @Test
     void createUserFromAuth_Success() {
+        log.info("Testing createUserFromAuth: Success scenario");
         when(userRepository.existsById(1L)).thenReturn(false);
         when(userRepository.existsByEmail("john.doe@example.com")).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(testUser);
@@ -91,6 +97,7 @@ class UserServiceTest {
         assertNotNull(savedUser);
         assertEquals("john.doe@example.com", savedUser.getEmail());
         verify(userRepository, times(1)).save(any(User.class));
+        log.info("Finished testing createUserFromAuth: Success scenario");
     }
 
     @Test

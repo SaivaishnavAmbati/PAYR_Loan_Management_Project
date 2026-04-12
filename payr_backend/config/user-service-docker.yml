@@ -1,0 +1,40 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/user_service_dev?createDatabaseIfNotExist=true
+    username: root
+    password: ${DB_PASSWORD:6303}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    hostname: user-service
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+# ✅ Add this for Swagger visibility (IMPORTANT)
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

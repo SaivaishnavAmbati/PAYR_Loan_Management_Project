@@ -1,0 +1,93 @@
+server:
+  port: 8083
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: loan-service
+  datasource:
+    url: jdbc:mysql://mysql:3306/payr_loan?createDatabaseIfNotExist=true
+    username: root
+    password: ${DB_PASSWORD:6303}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: loan-service-group
+      auto-offset-reset: earliest
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    hostname: loan-service
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+  # 🔥 FIX 1: Show full health details
+  endpoint:
+    health:
+      show-details: always
+
+  # 🔥 FIX 2: Expose all actuator endpoints
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  # 🔥 FIX 3: Enable circuit breaker health
+  health:
+    circuitbreakers:
+      enabled: true
+
+# 🔥 Circuit Breaker + Retry Configuration
+resilience4j:
+  circuitbreaker:
+
+    # 🔥 FIX 4: DEFAULT CONFIG (VERY IMPORTANT)
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+    instances:
+      documentService:
+        baseConfig: default
+
+  retry:
+    instances:
+      documentService:
+        maxAttempts: 3
+        waitDuration: 2s
+
+# 🔥 Logging pattern (Zipkin tracing)
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+# Swagger
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

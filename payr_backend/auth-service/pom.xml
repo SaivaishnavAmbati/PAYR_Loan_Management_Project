@@ -20,6 +20,7 @@
     <spring-cloud.version>2023.0.1</spring-cloud.version> <!-- FIXED -->
     <jjwt.version>0.12.7</jjwt.version>
     <springdoc.version>2.5.0</springdoc.version> <!-- safer version -->
+    <byte-buddy.version>1.15.7</byte-buddy.version>
   </properties>
 
   <dependencyManagement>
@@ -158,14 +159,14 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.8.0</version> <!-- latest stable -->
+      <version>5.14.2</version> <!-- Java 23 compatible -->
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
-      <version>5.8.0</version>
+      <version>5.14.2</version>
       <scope>test</scope>
     </dependency>
 

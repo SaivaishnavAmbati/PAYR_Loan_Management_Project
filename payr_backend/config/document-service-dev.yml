@@ -1,0 +1,51 @@
+server:
+  port: 8180
+
+spring:
+  application:
+    name: DOCUMENT-SERVICE
+  datasource:
+    url: jdbc:mysql://localhost:3306/payr_document_db?createDatabaseIfNotExist=true
+    username: root
+    password: 6303
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1
+    hostname: localhost
+    instance-id: document-service:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+    enabled: true
+
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${ACESS_KEY:}
+      secret-key: ${SECRET_KEY:}
+    region:
+      static: ap-south-2

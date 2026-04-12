@@ -1,9 +1,7 @@
 package com.payr.payment_service.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payr.payment_service.dto.PaymentCallbackDto;
-import com.payr.payment_service.dto.PaymentEvent;
 import com.payr.payment_service.dto.PaymentRequestDto;
 import com.payr.payment_service.model.PaymentStatus;
 import com.payr.payment_service.model.PaymentTransaction;
@@ -22,8 +20,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.json.JSONObject;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 
@@ -51,6 +51,7 @@ class PaymentServiceTest {
 
     @Test
     void testFallbackCreateOrder() {
+        log.info("Testing testFallbackCreateOrder: Gateway Unavailable scenario");
         PaymentRequestDto requestDto = new PaymentRequestDto();
         requestDto.setAmount(new BigDecimal("5000"));
         requestDto.setLoanId(1);
@@ -60,7 +61,8 @@ class PaymentServiceTest {
             paymentService.fallbackCreateOrder(requestDto, new Exception("Network Error"));
         });
         
-        assertTrue(exception.getMessage().contains("Payment gateway (Razorpay) is currently unavailable"));
+        assertTrue(exception.getMessage().contains("Payment gateway (Razorpay) is unavailable"));
+        log.info("Finished testing testFallbackCreateOrder: Gateway Unavailable scenario");
     }
 
     @Test
@@ -79,12 +81,13 @@ class PaymentServiceTest {
 
             boolean result = paymentService.verifyCallback(callbackDto);
             
-            assertFalse(result); // returns false due to exception catch
+            assertFalse(result); // Returns false because Exception is caught in verifyCallback
         }
     }
 
     @Test
     void testVerifyCallback_ValidSignature() throws JsonProcessingException {
+        log.info("Testing testVerifyCallback: Valid Signature scenario");
         PaymentCallbackDto callbackDto = new PaymentCallbackDto();
         callbackDto.setRazorpayOrderId("order_abc");
         callbackDto.setRazorpayPaymentId("pay_abc");
@@ -111,6 +114,7 @@ class PaymentServiceTest {
             
             verify(paymentTransactionRepository, times(1)).save(transaction);
             verify(kafkaTemplate, times(1)).send(eq("payment-success"), any(String.class));
+            log.info("Finished testing testVerifyCallback: Valid Signature scenario");
         }
     }
 }
