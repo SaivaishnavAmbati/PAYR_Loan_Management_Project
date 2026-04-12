@@ -27,7 +27,6 @@ PAYR is production-ready and aligns with modern backend engineering best practic
 ## 🏛️ System Architecture Overview
 
 The system follows a domain-driven microservices architecture, where each service encapsulates a specific business capability.
-## 🏛️ System Architecture
 ---
 ```mermaid
 graph TD
